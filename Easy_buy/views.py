@@ -173,12 +173,14 @@ class AdminDashboard(ViewSet):
     
     permission_classes = [AdminDashboardView]
     def list(self,request):
+        total_spent = 0
         best_spent = 0
         best_customer = None
         total_sold = 0
         total_ordered = 0
         best_supplier = None
         best_supplied = 0
+        profit = 0
         customers = User.objects.filter(role = "customer")
         suppliers = User.objects.filter(role = "supplier")
         

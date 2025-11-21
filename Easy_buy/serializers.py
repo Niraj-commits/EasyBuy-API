@@ -3,7 +3,6 @@ from core.models import User
 from rest_framework import serializers
 from django.core.mail import send_mail
 from django.conf import settings
-from fcm_django.models import FCMDevice
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -332,14 +331,6 @@ class PurchaseDeliverySerializer(serializers.ModelSerializer):
         
         return total
     
-    def send_fcm_notification(self, user, title, message):
-        """
-        Send push notification using Firebase Cloud Messaging (FCM).
-        """
-        device = FCMDevice.objects.filter(user=user).first()  # Get the first device registered for the user
-        if device:
-            device.send_message(title=title, body=message)
-    
     def create(self, validated_data):
         
         status = validated_data.get('status')
@@ -367,11 +358,11 @@ class PurchaseDeliverySerializer(serializers.ModelSerializer):
                 from_email= purchase.supplier.email,
                 recipient_list=[user.email]
             )
-            self.send_fcm_notification(
-                user,  # Deliverer
-                "New Delivery Assigned",  # Notification Title
-                f"Hi {user.username}, a new delivery has been assigned to you."  # Notification Body
-            )
+            # self.send_fcm_notification(
+            #     user,  # Deliverer
+            #     "New Delivery Assigned",  # Notification Title
+            #     f"Hi {user.username}, a new delivery has been assigned to you."  # Notification Body
+            # )
         
         elif status == "delivered":
             purchase.status = "delivered"
