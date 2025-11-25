@@ -138,9 +138,9 @@ AUTH_USER_MODEL = "core.User"
 
 
 REST_FRAMEWORK = {
-	    # 'DEFAULT_AUTHENTICATION_CLASSES': [
-		# 'rest_framework.authentication.TokenAuthentication',
-	    # ],
+	    'DEFAULT_AUTHENTICATION_CLASSES': [
+		'rest_framework.authentication.TokenAuthentication',
+	    ],
      'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',}
 
 EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
@@ -149,6 +149,7 @@ EMAIL_HOST_PASSWORD = '1ba18610a58c35'
 EMAIL_PORT = 2525
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
+DEFAULT_FROM_EMAIL = 'easy-buy@noreply.com'
 
 
 # DRF Debug toolbar

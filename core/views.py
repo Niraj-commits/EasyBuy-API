@@ -31,15 +31,15 @@ class DeliveryRegisterView(viewsets.ModelViewSet):
     serializer_class = DeliverySerializer
     permission_classes = [RegisterUser]
 
-class LoginView(APIView):
+class LoginView(viewsets.ViewSet):
     
     @extend_schema(
         request= LoginSerializer,
-        responses = {204:None},
+        responses = {200:LoginSerializer},
         methods = ['POST']
     )
     
-    def post(self,request):
+    def create(self,request):
         username = request.data.get('username')
         password = request.data.get('password')
         

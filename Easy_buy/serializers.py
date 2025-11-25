@@ -162,7 +162,6 @@ class OrderDeliverySerializer(serializers.ModelSerializer):
         
         if duplicate_order:
             raise serializers.ValidationError("Record already exist")
-        order.status = "pending"
         order.save()
         send_mail(
             subject="Order Delivery Assigned",
