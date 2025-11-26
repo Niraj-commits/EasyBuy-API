@@ -173,3 +173,10 @@ cython_debug/
 #.idea/
 
 # End of https://www.toptal.com/developers/gitignore/api/django
+
+core/migrations/*
+!core/migrations.__init__.py
+
+Easy_buy/migrations/*
+!Easy_buy/migrations.__init__.py
+

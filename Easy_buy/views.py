@@ -9,8 +9,18 @@ from rest_framework import filters
 from .filter import *
 from .pagination import *
 from rest_framework import status
+from drf_spectacular.utils import extend_schema,OpenApiExample
 
-# Create your views here.
+@extend_schema(
+    tags=['Category'],
+    examples=[
+        OpenApiExample(
+        "Simple Category Example",
+        value={
+            "name":"category"
+        }
+    )]
+)
 class CategoryViewset(viewsets.ModelViewSet):
     
     queryset = Category.objects.all()
@@ -30,7 +40,21 @@ class CategoryViewset(viewsets.ModelViewSet):
         queryset.delete()
         return Response({"Details":"Category has been deleted"},status=status.HTTP_200_OK)
         
-        
+@extend_schema(
+    tags=['Product'],
+    examples=[
+        OpenApiExample(
+            "Simple Product Example",
+            value={
+                "name":"product",
+                "description":"description",
+                "amount":1,
+                "quantity":4,
+                "category":1,
+            }
+        )]
+)
+
 class ProductViewset(viewsets.ModelViewSet):
     
     queryset = Product.objects.all()
