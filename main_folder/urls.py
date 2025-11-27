@@ -25,6 +25,6 @@ urlpatterns = [
     path('apis/',include('Easy_buy.urls')),
     path('auth/',include('core.urls')),
     path('schema/', SpectacularAPIView.as_view(), name='schema'),
-    path('swagger/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger'),
+    path('docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='docs'),
     path('redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 ] + debug_toolbar_urls()

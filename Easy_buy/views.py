@@ -80,6 +80,22 @@ class ProductViewset(viewsets.ModelViewSet):
         queryset.delete()
         return Response({"Details":"Product Deleted Successfully"},status=status.HTTP_200_OK)
 
+@extend_schema(
+    tags=['Orders'],
+    examples=[
+        OpenApiExample(
+            "Simple Order Example",
+            value={
+                "items": [
+                  {
+                    "product_id": 1,
+                    "quantity": 10
+                    }
+                ]
+}
+        )]
+)
+
 class OrderViewset(viewsets.ModelViewSet):
     
     queryset = Order.objects.prefetch_related('items').all()
@@ -117,6 +133,18 @@ class OrderItemViewset(viewsets.ModelViewSet):
     queryset = OrderItem.objects.all()
     serializer_class = OrderItemSerializer
 
+@extend_schema(
+    tags=['Order Delivery'],
+    examples=[
+        OpenApiExample(
+            "Simple Order Delivery Example",
+            value={
+                "order_id": 0,
+                "deliverer_id": 0,
+                "status": "assigned"
+                }
+        )]
+)
 class OrderDeliveryViewset(viewsets.ModelViewSet):
     
     queryset = OrderDelivery.objects.all()
@@ -140,6 +168,21 @@ class PurchaseItemViewset(viewsets.ModelViewSet):
     queryset = Purchase_Item.objects.all()
     serializer_class = PurchaseItemSerializer
 
+@extend_schema(
+    tags=['Purchase'],
+    examples=[
+        OpenApiExample(
+            "Simple Order Example",
+            value={
+                "items": [
+                  {
+                    "product_id": 1,
+                    "quantity": 10
+                    }
+                ]
+}
+        )]
+)
 class PurchaseViewset(viewsets.ModelViewSet):
     
     queryset = Purchase.objects.all()
@@ -174,7 +217,19 @@ class PurchaseViewset(viewsets.ModelViewSet):
         queryset.delete()
         
         return Response({"Details":"Deleted Purchase Successfully"})
-        
+
+@extend_schema(
+    tags=['Purchase Delivery'],
+    examples=[
+        OpenApiExample(
+            "Simple Purchase Delivery Example",
+            value={
+                "purchase_id": 0,
+                "deliverer_id": 0,
+                "status": "assigned"
+                }
+        )]
+)
 class PurchaseDeliveryViewset(viewsets.ModelViewSet):
     
     queryset = PurchaseDelivery.objects.all()
