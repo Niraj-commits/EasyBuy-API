@@ -100,10 +100,10 @@ class OrderPermission(BasePermission):
             return False
         
         if request.user.role =="admin":
-            if request.method in SAFE_METHODS:
+            # if request.method in SAFE_METHODS:
                 return True
-            else:
-                return False
+            # else:
+            #     return False
         elif request.user.role == "customer":
             if request.method in SAFE_METHODS or request.method in "POST":
                 return True

@@ -4,7 +4,7 @@ from core.models import *
 # Create your models here.
 class Category(models.Model):
     name = models.CharField(max_length=25)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateField(auto_now_add=True)
     created_by = models.ForeignKey(User,on_delete=models.PROTECT)
 
     
@@ -17,7 +17,7 @@ class Product(models.Model):
     quantity = models.PositiveIntegerField(default=1)
     category = models.ForeignKey(Category,on_delete=models.PROTECT)
     price = models.FloatField()
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateField(auto_now_add=True)
     created_by = models.ForeignKey(User,on_delete=models.PROTECT)
 
 
@@ -28,7 +28,7 @@ class Order(models.Model):
     status_options = [('pending','pending'),('delivered','delivered'),('cancelled','cancelled')]
     customer = models.ForeignKey(User,on_delete=models.CASCADE,related_name="order_set")
     status = models.CharField(max_length=25,choices=status_options,default="pending")
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateField(auto_now_add=True)
     created_by = models.ForeignKey(User,on_delete=models.PROTECT,related_name="admin_orders")
     
     def __str__(self):
@@ -45,12 +45,17 @@ class OrderDelivery(models.Model):
     order = models.ForeignKey(Order,on_delete=models.CASCADE,related_name="orders")
     delivery = models.ForeignKey(User,on_delete=models.CASCADE)
     status = models.CharField(max_length=25,choices=status_choices,default="assigned")
+    created_at = models.DateField(auto_now_add=True)
+    created_by = models.ForeignKey(User,on_delete=models.PROTECT,related_name="admin_orders_delivery")
+
 
 class Purchase(models.Model):
     
     order_status = [('pending','pending'),('delivered','delivered'),('cancelled','cancelled')]
     supplier = models.ForeignKey(User,on_delete=models.CASCADE,related_name="purchase_set")
     status = models.CharField(max_length=25,choices=order_status,default="pending")
+    created_at = models.DateField(auto_now_add=True)
+    created_by = models.ForeignKey(User,on_delete=models.PROTECT,related_name="admin_purchase")
     
     def __str__(self):
         return (f"Supplied By: {self.supplier.username},Order No: {self.id}")
@@ -67,6 +72,8 @@ class PurchaseDelivery(models.Model):
     purchase = models.ForeignKey(Purchase,on_delete=models.CASCADE, related_name = "delivery_set")
     delivery = models.ForeignKey(User,on_delete=models.CASCADE)
     status = models.CharField(max_length=25,choices=status_choices,default="assigned")
+    created_at = models.DateField(auto_now_add=True)
+    created_by = models.ForeignKey(User,on_delete=models.PROTECT,related_name="admin_puchase_delivery")
 
 class Payment(models.Model):
     status_options = [('pending','pending'),('completed','completed'),('cancelled','cancelled'),]
@@ -74,4 +81,4 @@ class Payment(models.Model):
     status = models.CharField(max_length=50,choices=status_options,default="pending")
     order = models.ForeignKey(Order,on_delete=models.PROTECT)
     created_at = models.DateField(auto_now_add=True)
-    created_by = models.ForeignKey(User,on_delete=models.PROTECT)
+    created_by = models.ForeignKey(User,on_delete=models.PROTECT,related_name="admin_payments")

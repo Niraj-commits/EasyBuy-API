@@ -33,7 +33,6 @@ class ProductSerializer(serializers.ModelSerializer):
     category_id = serializers.PrimaryKeyRelatedField(source = "category",queryset = Category.objects.all())
     quantity = serializers.IntegerField(min_value =1,max_value = 1000)
 
-    
     class Meta:
         model = Product
         fields = ['id','name','category_id','category','price','description','quantity']
@@ -101,10 +100,10 @@ class OrderSerializer(serializers.ModelSerializer):
     total_cost = serializers.SerializerMethodField()
     items = OrderItemSerializer(many =True)
     status = serializers.ReadOnlyField(default = "pending")
-    
+    created_by = serializers.HiddenField(default = serializers.CurrentUserDefault())
     class Meta:
         model = Order
-        fields = ['id','customer','customer_name','status','total_cost','items']
+        fields = ['id','customer','customer_name','status','total_cost','created_at','created_by','items']
         
     def get_total_cost(self,order):
         total = 0
@@ -137,10 +136,11 @@ class OrderDeliverySerializer(serializers.ModelSerializer):
     deliverer_id = serializers.PrimaryKeyRelatedField(source= "delivery",queryset = User.objects.filter(role="delivery"))
     deliverer = serializers.StringRelatedField(source="delivery")
     order_total = serializers.SerializerMethodField()
+    created_by = serializers.HiddenField(default = serializers.CurrentUserDefault())
     
     class Meta:
         model = OrderDelivery
-        fields = ['id','order_id','deliverer_id','deliverer','status','order_total']
+        fields = ['id','order_id','deliverer_id','deliverer','status','order_total','created_at','created_by']
         
     
     def get_order_total(self,delivery):
@@ -163,12 +163,12 @@ class OrderDeliverySerializer(serializers.ModelSerializer):
         if duplicate_order:
             raise serializers.ValidationError("Record already exist")
         order.save()
-        send_mail(
-            subject="Order Delivery Assigned",
-            message= f"hi {user.username} a new delivery has been assigned to you",
-            from_email= settings.EMAIL_HOST_USER,
-            recipient_list=[user.email]
-        )
+        # send_mail(
+        #     subject="Order Delivery Assigned",
+        #     message= f"hi {user.username} a new delivery has been assigned to you",
+        #     from_email= settings.EMAIL_HOST_USER,
+        #     recipient_list=[user.email]
+        # )
         
         delivery_entry = OrderDelivery.objects.create(**validated_data)
         return delivery_entry 
@@ -195,12 +195,12 @@ class OrderDeliverySerializer(serializers.ModelSerializer):
             order.status = "completed"
             order.save()
             
-            send_mail(
-                subject="Order Completed",
-                message= f"hi {order.customer.username} delivery has been completed",
-                from_email=user.email,
-                recipient_list= [order.customer.email],
-            )
+            # send_mail(
+            #     subject="Order Completed",
+            #     message= f"hi {order.customer.username} delivery has been completed",
+            #     from_email=user.email,
+            #     recipient_list= [order.customer.email],
+            # )
             
             for item in order.items.all():
                 product = item.product
@@ -210,20 +210,20 @@ class OrderDeliverySerializer(serializers.ModelSerializer):
                 product.save()
                 
                 
-                if product.quantity < 5 :
-                    self.mail_when_low_stock(product)
+                # if product.quantity < 5 :
+                #     self.mail_when_low_stock(product)
         
         elif status == "cancelled":
             instance.status = "cancelled"
             order.status = "cancelled"
             order.save()
             instance.save()
-            send_mail(
-                subject="Delivery Cancelled",
-                message= f"Order delivery has been cancelled.",
-                from_email=user.email,
-                recipient_list= [order.customer.email],
-                )
+            # send_mail(
+            #     subject="Delivery Cancelled",
+            #     message= f"Order delivery has been cancelled.",
+            #     from_email=user.email,
+            #     recipient_list= [order.customer.email],
+            #     )
             raise serializers.ValidationError("Order has been cancelled")
         instance.order = order
         instance.status = status
@@ -231,16 +231,16 @@ class OrderDeliverySerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
-    def mail_when_low_stock(self,product):
-        suppliers = User.objects.filter(role = "supplier").values_list("email",flat=True)
+    # def mail_when_low_stock(self,product):
+    #     suppliers = User.objects.filter(role = "supplier").values_list("email",flat=True)
         
-        if suppliers:
-            send_mail(
-                subject="Stock are running low ",
-                message=f"Product {product.name} is running low please send deliveries",
-                from_email=settings.EMAIL_HOST_USER,
-                recipient_list=list(suppliers),
-            )
+    #     if suppliers:
+    #         send_mail(
+    #             subject="Stock are running low ",
+    #             message=f"Product {product.name} is running low please send deliveries",
+    #             from_email=settings.EMAIL_HOST_USER,
+    #             recipient_list=list(suppliers),
+    #         )
             
 class PurchaseItemSerializer(serializers.ModelSerializer):
     
@@ -351,16 +351,11 @@ class PurchaseDeliverySerializer(serializers.ModelSerializer):
             purchase.save()
             
             
-            send_mail(
-                subject="Purchase Delivery Assigned",
-                message= f"hi {user.username} a new delivery has been assigned to you",
-                from_email= purchase.supplier.email,
-                recipient_list=[user.email]
-            )
-            # self.send_fcm_notification(
-            #     user,  # Deliverer
-            #     "New Delivery Assigned",  # Notification Title
-            #     f"Hi {user.username}, a new delivery has been assigned to you."  # Notification Body
+            # send_mail(
+            #     subject="Purchase Delivery Assigned",
+            #     message= f"hi {user.username} a new delivery has been assigned to you",
+            #     from_email= purchase.supplier.email,
+            #     recipient_list=[user.email]
             # )
         
         elif status == "delivered":
@@ -371,22 +366,22 @@ class PurchaseDeliverySerializer(serializers.ModelSerializer):
                 item.product.quantity += item.quantity
                 item.product.save() 
             
-            send_mail(
-                subject="Purchase Delivered",
-                message= f"hi {purchase.supplier.username} delivery has been completed",
-                from_email=user.email,
-                recipient_list= [purchase.supplier.email],
-            )
+            # send_mail(
+            #     subject="Purchase Delivered",
+            #     message= f"hi {purchase.supplier.username} delivery has been completed",
+            #     from_email=user.email,
+            #     recipient_list= [purchase.supplier.email],
+            # )
             
         elif status == "cancelled":
             purchase.status = "cancelled"
             purchase.save()
-            send_mail(
-                subject="Delivery Cancelled",
-                message= f"purchase delivery has been cancelled.",
-                from_email=user.email,
-                recipient_list= [purchase.supplier.email],
-                )
+            # send_mail(
+            #     subject="Delivery Cancelled",
+            #     message= f"purchase delivery has been cancelled.",
+            #     from_email=user.email,
+            #     recipient_list= [purchase.supplier.email],
+            #     )
         
         delivery_entry = PurchaseDelivery.objects.create(**validated_data)
         return delivery_entry 
@@ -418,24 +413,24 @@ class PurchaseDeliverySerializer(serializers.ModelSerializer):
                 item.product.save()
             purchase.save()
             
-            send_mail(
-                subject="Purchase Delivered",
-                message= f"hi {purchase.supplier.username} delivery has been completed",
-                from_email=user.email,
-                recipient_list= [purchase.supplier.email],
-            )
+            # send_mail(
+            #     subject="Purchase Delivered",
+            #     message= f"hi {purchase.supplier.username} delivery has been completed",
+            #     from_email=user.email,
+            #     recipient_list= [purchase.supplier.email],
+            # )
         
         elif status == "cancelled":
             instance.status = "cancelled"
             purchase.status = "cancelled"
             purchase.save()
             instance.save()
-            send_mail(
-                subject="Delivery Cancelled",
-                message= f"purchase delivery has been cancelled.",
-                from_email=user.email,
-                recipient_list= [purchase.supplier.email],
-                )
+            # send_mail(
+            #     subject="Delivery Cancelled",
+            #     message= f"purchase delivery has been cancelled.",
+            #     from_email=user.email,
+            #     recipient_list= [purchase.supplier.email],
+            #     )
             raise serializers.ValidationError("purchase has been cancelled")
         instance.purchase = purchase
         instance.status = status
